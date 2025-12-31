@@ -1,3 +1,11 @@
+<?php
+require_once __DIR__ . '/vendor/autoload.php';
+
+use App\Database;
+use App\Model\User;
+
+?>
+
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 <head>
@@ -44,8 +52,6 @@
 
                 <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
                     <a href="index.php" class="text-primary font-semibold">Catalogue</a>
-                    <a href="#" class="text-gray-500 hover:text-primary transition">Agences</a>
-                    <a href="#" class="text-gray-500 hover:text-primary transition">Offres Pro</a>
                 </div>
 
                 <div class="flex items-center gap-4">
