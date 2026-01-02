@@ -36,7 +36,7 @@ class User {
         ]);
     }
 
-    public static function login($conn, $email, $password) {
+    public static function verifier_login($conn, $email, $password) {
         $query = "SELECT * FROM users WHERE email = :email";
         $stmt = $conn->prepare($query);
         $stmt->execute([':email' => $email]);

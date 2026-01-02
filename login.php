@@ -1,10 +1,11 @@
 <?php
 session_start();
 $message = "";
-require_once 'config.php';
-// require_once 'classes/user.php';
+require_once 'classes/database.php';
+require_once 'classes/Model/user.php';
 
-$database = new Database();
+use App\Model\User;
+$database = new App\Database();
 $conn = $database->getConnection();
 
 if (isset($_GET['redirect'])) {
@@ -18,22 +19,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user = User::verifier_login($conn, $email, $password);
 
     if ($user != null) {
-        if ($user->get_statut() == 0) {
-            header("Location: login.php?status=pending_registration");
-        } else {
-            $_SESSION['user_id'] = $user->get_id();
-            $_SESSION['nom'] = $user->get_nom();
-            $_SESSION['role'] = $user->get_role();
+        $_SESSION['user_id'] = $user->getId();
+        $_SESSION['nom'] = $user->getNomCOmplet();
+        $_SESSION['role'] = $user->getRole();
 
-            if ($user->get_role() === 'admin') {
-                header("Location: admin_dashboard.php?status=success_login");
-            } elseif ($user->get_role() === 'guide') {
-                header("Location: guide_dashboard.php?status=success_login");
-            } else {
-                header("Location: visiteur.php?status=success_login");
-            }
-            exit();
+        if ($user->getRole() === 'admin') {
+            header("Location: admin_dashboard.php?status=success_login");
+        } elseif ($user->getRole() === 'guide') {
+            header("Location: guide_dashboard.php?status=success_login");
+        } else {
+            header("Location: visiteur.php?status=success_login");
         }
+        exit();
     } else {
         header("Location: login.php?status=incorrect_login_infos");
     }
