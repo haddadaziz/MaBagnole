@@ -2,26 +2,41 @@
 namespace App\Model;
 use PDO;
 
-class User {
+class User
+{
     private $id;
     private $nom_complet;
     private $email;
     private $password;
     private $role;
 
-    public function __construct($id, $nom_complet, $email, $password, $role) {
+    public function __construct($id, $nom_complet, $email, $password, $role)
+    {
         $this->id = $id;
         $this->nom_complet = $nom_complet;
         $this->email = $email;
         $this->password = $password;
         $this->role = $role;
     }
-    public function getId() { return $this->id; }
-    public function getNomComplet() { return $this->nom_complet; }
-    public function getEmail() { return $this->email; }
-    public function getRole() { return $this->role; }
+    public function getId()
+    {
+        return $this->id;
+    }
+    public function getNomComplet()
+    {
+        return $this->nom_complet;
+    }
+    public function getEmail()
+    {
+        return $this->email;
+    }
+    public function getRole()
+    {
+        return $this->role;
+    }
 
-    public static function register($conn, $nom_complet, $email, $password) {
+    public static function register($conn, $nom_complet, $email, $password)
+    {
         $nom_complet = htmlspecialchars(strip_tags($nom_complet));
         $email = htmlspecialchars(strip_tags($email));
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
@@ -36,11 +51,12 @@ class User {
         ]);
     }
 
-    public static function verifier_login($conn, $email, $password) {
+    public static function verifier_login($conn, $email, $password)
+    {
         $query = "SELECT * FROM users WHERE email = :email";
         $stmt = $conn->prepare($query);
         $stmt->execute([':email' => $email]);
-        
+
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row && password_verify($password, $row['password'])) {
             return new User(
@@ -51,10 +67,11 @@ class User {
                 $row['role']
             );
         }
-        
+
         return null;
     }
-    public static function getById($conn, $id) {
+    public static function getById($conn, $id)
+    {
         $query = "SELECT * FROM users WHERE id = :id";
         $stmt = $conn->prepare($query);
         $stmt->execute([':id' => $id]);
@@ -70,5 +87,11 @@ class User {
             );
         }
         return null;
+    }
+    public static function getAll($conn)
+    {
+        $query = "SELECT * FROM users ORDER BY id DESC";
+        $stmt = $conn->query($query);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
