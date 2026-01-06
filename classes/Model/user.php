@@ -50,7 +50,13 @@ class User
             ':role' => $role
         ]);
     }
-
+    public static function findByEmail($conn, $email)
+    {
+        $query = "SELECT * FROM users WHERE email = :email";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([':email' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     public static function verifier_login($conn, $email, $password)
     {
         $query = "SELECT * FROM users WHERE email = :email";

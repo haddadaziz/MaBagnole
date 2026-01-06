@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
-// use App\Model\Article; // À décommenter quand tu auras le backend
+session_start();
+
+// use App\Model\Article; // À décommenter plus tard
 ?>
 
 <!DOCTYPE html>
@@ -42,11 +44,29 @@ require_once __DIR__ . '/vendor/autoload.php';
                 </a>
                 <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
                     <a href="index.php" class="text-gray-600 hover:text-primary transition">Catalogue</a>
-                    <a href="blog.php" class="text-primary font-semibold">Blog & Communauté</a> </div>
-                <div class="flex items-center gap-4">
-                    <a href="login.php" class="hidden md:block text-sm font-medium text-gray-600 hover:text-primary transition">Connexion</a>
-                    <a href="register.php" class="px-5 py-2.5 bg-dark text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition shadow-lg">Inscription</a>
+                    <a href="blog.php" class="text-primary font-semibold">Blog & Communauté</a> 
                 </div>
+                
+                <div class="flex items-center gap-4">
+                    <?php if (isset($_SESSION['user'])): ?>
+                        <div class="hidden md:flex flex-col text-right mr-2">
+                            <span class="text-sm font-bold text-dark">
+                                <?= htmlspecialchars($_SESSION['user']['nom_complet'] ?? 'Mon Compte') ?>
+                            </span>
+                            <span class="text-xs text-green-600 font-bold">Connecté</span>
+                        </div>
+                        <a href="mes-reservations.php" class="text-gray-600 hover:text-primary text-sm font-medium hidden md:block">
+                            <i class="fa-solid fa-calendar-check text-lg"></i>
+                        </a>
+                        <a href="logout.php" class="px-4 py-2 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 transition border border-red-100">
+                            <i class="fa-solid fa-power-off"></i>
+                        </a>
+                    <?php else: ?>
+                        <a href="login.php" class="hidden md:block text-sm font-medium text-gray-600 hover:text-primary transition">Connexion</a>
+                        <a href="register.php" class="px-5 py-2.5 bg-dark text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition shadow-lg">Inscription</a>
+                    <?php endif; ?>
+                </div>
+
             </div>
         </div>
     </nav>
@@ -63,9 +83,12 @@ require_once __DIR__ . '/vendor/autoload.php';
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     <input type="text" placeholder="Rechercher un article..." class="w-full bg-gray-50 border border-gray-200 text-dark pl-11 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition">
                 </div>
-                <a href="create_article.php" class="w-full md:w-auto px-6 py-3 bg-primary hover:bg-primary_hover text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-pen-nib"></i> Rédiger un article
-                </a>
+                
+                <?php if (isset($_SESSION['user'])): ?>
+                    <a href="create_article.php" class="w-full md:w-auto px-6 py-3 bg-primary hover:bg-primary_hover text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-pen-nib"></i> Rédiger un article
+                    </a>
+                <?php endif; ?>
             </div>
             
             <div class="mt-6 flex flex-wrap justify-center gap-2">

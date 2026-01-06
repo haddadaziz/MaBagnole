@@ -83,7 +83,7 @@ class Reservation {
             ':fin'   => $fin
         ]);
         
-        return $stmt->fetchColumn() == 0; // Retourne TRUE si 0 conflit
+        return $stmt->fetchColumn() == 0;
     }
     
     //  stats

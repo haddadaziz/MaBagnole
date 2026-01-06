@@ -9,17 +9,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     else if (urlParams.get('status') === 'success_login') {
         display_green_notification("Connecté avec succès !");
-        window.history.replaceState({}, document.title, "admin_dashboard.php");
+        window.history.replaceState({}, document.title, "index.php");
     }
     else if (urlParams.get('status') === 'success_modifier_vehicule') {
         display_green_notification("Véhicule modifié avec succès !");
+        window.history.replaceState({}, document.title, "admin_vehicules.php");
+    }
+    else if (urlParams.get('status') === 'echec_modifier_vehicule') {
+        display_red_notification("Véhicule modifié avec succès !");
         window.history.replaceState({}, document.title, "admin_vehicules.php");
     }
     else if (urlParams.get('status') === 'succes_delete_vehicule') {
         display_green_notification("Véhicule supprimé avec succès !");
         window.history.replaceState({}, document.title, "admin_vehicules.php");
     }
+    else if (urlParams.get('status') === 'error_champs_manquants') {
+        display_red_notification("Champs obligatoires manquants !");
+        window.history.replaceState({}, document.title, "admin_vehicules.php");
+    }
+    else if (urlParams.get('status') === 'all_field_required') {
+        display_red_notification("Tous les champs sont obligatoires!");
+        window.history.replaceState({}, document.title, "register.php");
+    }
+    else if (urlParams.get('status') === 'invalid_email_format') {
+        display_red_notification("Tous les champs sont obligatoires!");
+        window.history.replaceState({}, document.title, "register.php");
+    }
+    else if (urlParams.get('status') === 'success_register') {
+        display_green_notification("Inscrit avec succès !");
+        window.history.replaceState({}, document.title, "login.php");
+    }
+    else if (urlParams.get('status') === 'login_failed') {
+        display_red_notification("Informations incorrecte !");
+        window.history.replaceState({}, document.title, "login.php");
+    }
 })
+
 
 function display_green_notification(msg) {
     error_notification.classList.add("hidden")
