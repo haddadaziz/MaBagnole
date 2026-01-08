@@ -5,14 +5,38 @@ session_start();
 use App\Database;
 use App\Model\Vehicule;
 
-
 $database = new Database();
 $conn = $database->getConnection();
 
 $search = $_GET['search'] ?? null;
 $categorie = $_GET['categorie'] ?? null;
 
-$vehicules = Vehicule::getAll($conn, $search, $categorie);
+$toutesLesVoitures = Vehicule::getAll($conn, $search, $categorie);
+
+
+$parPage = 3;
+
+$totalVoitures = count($toutesLesVoitures);
+
+$nombreDePages = ceil($totalVoitures / $parPage);
+
+if (isset($_GET['page']) && !empty($_GET['page'])) {
+    $pageActuelle = (int) $_GET['page'];
+} else {
+    $pageActuelle = 1;
+}
+
+if ($pageActuelle > $nombreDePages || $pageActuelle < 1) {
+    $pageActuelle = 1;
+}
+
+// Si on est page 1 : on commence à l'index 0.
+// Si on est page 2 : on commence à l'index 3.
+$indexDepart = ($pageActuelle - 1) * $parPage;
+
+
+$vehicules = array_slice($toutesLesVoitures, $indexDepart, $parPage);
+
 ?>
 
 <!DOCTYPE html>
@@ -228,6 +252,28 @@ $vehicules = Vehicule::getAll($conn, $search, $categorie);
             <?php endif; ?>
 
         </div>
+        <?php if ($nombreDePages > 1): ?>
+            <div class="mt-16 flex justify-center">
+                <nav class="inline-flex rounded-lg shadow-sm border border-gray-200 bg-white">
+
+                    <?php for ($i = 1; $i <= $nombreDePages; $i++): ?>
+
+                        <?php if ($i == $pageActuelle): ?>
+                            <span class="px-4 py-2 bg-primary text-white border-r border-primary">
+                                <?= $i ?>
+                            </span>
+                        <?php else: ?>
+                            <a href="?page=<?= $i ?>&search=<?= htmlspecialchars($search) ?>&categorie=<?= htmlspecialchars($categorie) ?>#catalogue"
+                                class="px-4 py-2 text-gray-700 hover:text-primary hover:bg-gray-50 border-r border-gray-200 transition">
+                                <?= $i ?>
+                            </a>
+                        <?php endif; ?>
+
+                    <?php endfor; ?>
+
+                </nav>
+            </div>
+        <?php endif; ?>
     </section>
 
     <footer class="bg-white border-t border-gray-200 pt-16 pb-8">

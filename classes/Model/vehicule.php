@@ -4,6 +4,17 @@ use PDO;
 
 class Vehicule
 {
+    public static function getById($conn, $id) {
+        $sql = "SELECT v.*, c.nom as nom_categorie 
+                FROM vehicules v
+                LEFT JOIN categories c ON v.categorie_id = c.id
+                WHERE v.id = :id";
+                
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 
     public static function getAll($conn, $search = null, $categorie_id = null)
     {

@@ -1,10 +1,35 @@
-<?php require_once __DIR__ . '/vendor/autoload.php'; ?>
+<?php
+require_once __DIR__ . '/vendor/autoload.php';
+session_start();
+
+use App\Database;
+use App\Model\Article;
+
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    header('Location: blog.php');
+    exit;
+}
+
+$id = $_GET['id'];
+
+$database = new Database();
+$conn = $database->getConnection();
+$article = Article::getById($conn, $id);
+
+if (!$article) {
+    header('Location: blog.php');
+    exit;
+}
+
+$img = !empty($article['image_url']) ? htmlspecialchars($article['image_url']) : 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80';
+?>
+
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titre Article - MaBagnole</title>
+    <title><?= htmlspecialchars($article['titre']) ?> - Blog MaBagnole</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -21,115 +46,142 @@
 </head>
 <body class="bg-light text-dark font-sans antialiased">
 
-    <nav class="fixed w-full z-50 top-0 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <a href="index.php" class="flex items-center gap-2">
-                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white"><i class="fa-solid fa-car-side"></i></div>
-                <span class="text-xl font-bold text-dark">MaBagnole<span class="text-primary">.</span></span>
-            </a>
-            <a href="blog.php" class="text-sm font-medium text-gray-600 hover:text-primary"><i class="fa-solid fa-arrow-left mr-2"></i>Retour au blog</a>
+    <nav class="fixed w-full z-50 top-0 bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <a href="index.php" class="flex items-center gap-2 group">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                        <i class="fa-solid fa-car-side text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-dark">MaBagnole<span class="text-primary">.</span></span>
+                </a>
+                <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                    <a href="index.php" class="text-gray-600 hover:text-primary transition">Catalogue</a>
+                    <a href="blog.php" class="text-primary font-semibold">Blog & Communauté</a> 
+                </div>
+                <div class="flex items-center gap-4">
+                    <?php if (isset($_SESSION['user'])): ?>
+                        <div class="hidden md:flex flex-col text-right mr-2">
+                            <span class="text-sm font-bold text-dark"><?= htmlspecialchars($_SESSION['user']['nom_complet'] ?? 'Mon Compte') ?></span>
+                            <span class="text-xs text-green-600 font-bold">Connecté</span>
+                        </div>
+                        <a href="mes-reservations.php" class="text-gray-600 hover:text-primary"><i class="fa-solid fa-calendar-check text-lg"></i></a>
+                        <a href="logout.php" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg"><i class="fa-solid fa-power-off"></i></a>
+                    <?php else: ?>
+                        <a href="login.php" class="hidden md:block text-sm font-medium text-gray-600 hover:text-primary">Connexion</a>
+                        <a href="register.php" class="px-5 py-2.5 bg-dark text-white text-sm font-semibold rounded-lg hover:bg-gray-800">Inscription</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <article class="pt-32 pb-16">
-        <div class="max-w-4xl mx-auto px-6">
+    <div class="pt-32 pb-10 bg-white border-b border-gray-100">
+        <div class="max-w-3xl mx-auto px-6 text-center">
             
-            <div class="mb-8 text-center">
-                <div class="flex justify-center gap-2 mb-4">
-                    <span class="bg-blue-50 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase">Roadtrip</span>
-                </div>
-                <h1 class="text-3xl md:text-5xl font-bold text-dark mb-6 leading-tight">Mon voyage à Marrakech en Lamborghini Urus</h1>
-                <div class="flex items-center justify-center gap-6 text-sm text-gray_text">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><i class="fa-solid fa-user text-gray-500"></i></div>
-                        <span class="font-medium text-dark">Yassine</span>
-                    </div>
-                    <span><i class="fa-regular fa-calendar mr-1"></i> 12 Jan 2026</span>
-                    <span><i class="fa-regular fa-clock mr-1"></i> 5 min de lecture</span>
-                </div>
+            <div class="flex items-center justify-center gap-2 mb-6">
+                <span class="px-3 py-1 rounded-full bg-blue-50 text-primary text-xs font-bold uppercase tracking-wide">
+                    <?= htmlspecialchars($article['theme']) ?>
+                </span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-500 text-sm font-medium">
+                    <?= date('d M Y', strtotime($article['date_creation'])) ?>
+                </span>
             </div>
 
-            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-                 class="w-full h-[400px] object-cover rounded-2xl shadow-lg mb-12">
+            <h1 class="text-3xl md:text-5xl font-bold text-dark leading-tight mb-6">
+                <?= htmlspecialchars($article['titre']) ?>
+            </h1>
 
-            <div class="prose prose-lg prose-blue max-w-none text-gray_text leading-relaxed">
-                <p class="mb-6">C'était un rêve depuis longtemps : parcourir les routes sinueuses de l'Atlas au volant d'un monstre de puissance. Grâce à MaBagnole, ce rêve est devenu réalité...</p>
-                <h2 class="text-2xl font-bold text-dark mt-8 mb-4">La prise en main du véhicule</h2>
-                <p class="mb-6">L'intérieur de l'Urus est un cockpit d'avion. Les écrans, le cuir, l'odeur du neuf... Tout respire le luxe. Le démarrage du moteur V8 est un événement en soi.</p>
+            <div class="flex items-center justify-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    <i class="fa-solid fa-user"></i>
                 </div>
-
-            <div class="mt-12 py-6 border-t border-b border-gray-100 flex justify-between items-center">
-                <div class="flex gap-4">
-                    <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500 transition text-gray-600 font-medium">
-                        <i class="fa-regular fa-heart"></i> J'aime (42)
-                    </button>
-                    <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-yellow-50 hover:text-yellow-500 transition text-gray-600 font-medium">
-                        <i class="fa-regular fa-bookmark"></i> Sauvegarder
-                    </button>
-                </div>
-                <div class="flex gap-2">
-                    <button class="w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white transition flex items-center justify-center text-gray-600"><i class="fa-brands fa-twitter"></i></button>
-                    <button class="w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-800 hover:text-white transition flex items-center justify-center text-gray-600"><i class="fa-brands fa-facebook"></i></button>
+                <div class="text-left">
+                    <p class="text-sm font-bold text-dark"><?= htmlspecialchars($article['auteur'] ?? 'Auteur inconnu') ?></p>
+                    <p class="text-xs text-gray-500">Rédacteur MaBagnole</p>
                 </div>
             </div>
-
-            <div class="mt-16">
-                <h3 class="text-2xl font-bold text-dark mb-8 flex items-center gap-2">
-                    Discussion <span class="text-base font-normal text-gray-400">(12 commentaires)</span>
-                </h3>
-
-                <form class="mb-12 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <div class="flex gap-4 mb-4">
-                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">M</div>
-                        <div class="w-full">
-                            <textarea class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition resize-none" rows="3" placeholder="Partagez votre avis..."></textarea>
-                        </div>
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-primary_hover text-white font-bold rounded-xl transition">Publier</button>
-                    </div>
-                </form>
-
-                <div class="space-y-8">
-                    
-                    <div class="flex gap-4">
-                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold flex-shrink-0">JD</div>
-                        <div>
-                            <div class="bg-gray-50 p-4 rounded-xl rounded-tl-none">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h4 class="font-bold text-dark">Jean Dupont</h4>
-                                    <span class="text-xs text-gray-400">Il y a 2 heures</span>
-                                </div>
-                                <p class="text-gray-700 text-sm">Super article ! Est-ce que la consommation était raisonnable pour un roadtrip ?</p>
-                            </div>
-                            <div class="flex gap-4 mt-1 ml-2 text-xs text-gray-500 font-medium">
-                                <button class="hover:text-primary">Répondre</button>
-                                <button class="hover:text-red-500">Signaler</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4">
-                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">M</div>
-                        <div>
-                            <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-xl rounded-tl-none">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h4 class="font-bold text-dark">Moi (Auteur)</h4>
-                                    <div class="flex gap-2">
-                                        <button class="text-xs text-primary font-semibold hover:underline">Modifier</button>
-                                        <button class="text-xs text-red-500 font-semibold hover:underline">Supprimer</button>
-                                    </div>
-                                </div>
-                                <p class="text-gray-700 text-sm">Merci Jean ! Honnêtement, elle consomme pas mal, mais le plaisir vaut chaque centime 😉.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
-    </article>
+    </div>
 
-    </body>
+    <div class="max-w-4xl mx-auto px-6 -mt-8">
+        <div class="rounded-2xl overflow-hidden shadow-2xl mb-12">
+            <img src="<?= $img ?>" class="w-full h-[400px] object-cover">
+        </div>
+        
+        <div class="max-w-3xl mx-auto prose prose-lg prose-blue text-gray-700 leading-relaxed text-justify">
+            <?= nl2br(htmlspecialchars($article['contenu'])) ?>
+        </div>
+
+        <div class="max-w-3xl mx-auto mt-12 pt-8 border-t border-gray-200 flex justify-between items-center">
+            <div class="flex gap-2">
+                <span class="text-sm font-bold text-dark">Partager :</span>
+                <a href="#" class="text-gray-400 hover:text-blue-600"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="text-gray-400 hover:text-blue-400"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="text-gray-400 hover:text-green-500"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <section class="bg-gray-50 py-16 mt-16 border-t border-gray-200">
+        <div class="max-w-3xl mx-auto px-6">
+            <h3 class="text-2xl font-bold text-dark mb-8 flex items-center gap-3">
+                Commentaires <span class="bg-primary text-white text-sm px-2 py-0.5 rounded-full">3</span>
+            </h3>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-10">
+                <textarea class="w-full bg-gray-50 border border-gray-200 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary/20" rows="3" placeholder="Laissez un commentaire..."></textarea>
+                <div class="flex justify-end mt-3">
+                    <button class="bg-dark text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 text-sm transition">Publier</button>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold flex-shrink-0">AL</div>
+                    <div>
+                        <div class="bg-white p-4 rounded-xl rounded-tl-none shadow-sm border border-gray-100">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-dark">Amine L.</span>
+                                <span class="text-xs text-gray-400">Il y a 2h</span>
+                            </div>
+                            <p class="text-gray-600 text-sm">Super article ! J'ai fait le même trajet l'année dernière, c'était incroyable.</p>
+                        </div>
+                        <button class="text-xs text-gray-500 font-medium mt-1 ml-2 hover:text-primary">Répondre</button>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold flex-shrink-0">SB</div>
+                    <div>
+                        <div class="bg-white p-4 rounded-xl rounded-tl-none shadow-sm border border-gray-100">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-dark">Sarah B.</span>
+                                <span class="text-xs text-gray-400">Hier</span>
+                            </div>
+                            <p class="text-gray-600 text-sm">Merci pour les conseils mécaniques, ça m'aidera pour ma prochaine location.</p>
+                        </div>
+                        <button class="text-xs text-gray-500 font-medium mt-1 ml-2 hover:text-primary">Répondre</button>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold flex-shrink-0">KM</div>
+                    <div>
+                        <div class="bg-white p-4 rounded-xl rounded-tl-none shadow-sm border border-gray-100">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-dark">Karim M.</span>
+                                <span class="text-xs text-gray-400">2 jours</span>
+                            </div>
+                            <p class="text-gray-600 text-sm">Est-ce que l'Urus est disponible à Tanger aussi ou seulement à Marrakech ?</p>
+                        </div>
+                        <button class="text-xs text-gray-500 font-medium mt-1 ml-2 hover:text-primary">Répondre</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
 </html>

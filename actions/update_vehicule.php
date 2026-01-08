@@ -28,7 +28,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         if ($fileSize < 5000000) {
             $newName = uniqid('vehicule_', true) . "." . $ext;
 
-            $uploadDir = __DIR__ . '/../uploads/';
+            $uploadDir = __DIR__ . '/../assets/uploads/vehicules/';
             $destination = $uploadDir . $newName;
 
             if (move_uploaded_file($fileTmp, $destination)) {
