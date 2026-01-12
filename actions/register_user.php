@@ -44,8 +44,7 @@ if (User::findByEmail($conn, $email)) {
     exit;
 }
 
-// 6. Enregistrement (Appel de ta méthode register)
-// Note: Ta méthode register hash déjà le mot de passe, donc on envoie le mot de passe brut
+
 if (User::register($conn, $nom, $email, $password)) {
     header('Location: ../login.php?status=success_register');
     exit;
